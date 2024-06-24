@@ -1,57 +1,46 @@
-class WaterJugState:
-    def __init__(self, jug1, jug2):
-        self.jug1 = jug1
-        self.jug2 = jug2
+def DFS(a, b, target):
+    visited = {}
+    stack = [(0, 0)]
+    path = []
 
-    def __eq__(self, other):
-        return self.jug1 == other.jug1 and self.jug2 == other.jug2
+    while stack:
+        current = stack.pop()
 
-def dfs(current_state, visited, jug1_capacity, jug2_capacity, target_volume):
-    if current_state.jug1 == target_volume or current_state.jug2 == target_volume:
-        if current_state.jug1 == target_volume:
-            print("Jug 1 now has", target_volume, "liters.")
-        else:
-            print("Jug 2 now has", target_volume, "liters.")
-        return True
-    
-    visited.append((current_state.jug1, current_state.jug2))
+        if current in visited:
+            continue
 
-    operations = [
-        ('Fill Jug 1', jug1_capacity, current_state.jug2),
-        ('Fill Jug 2', current_state.jug1, jug2_capacity),
-        ('Empty Jug 1', 0, current_state.jug2),
-        ('Empty Jug 2', current_state.jug1, 0),
-        ('Pour Jug 1 to Jug 2', 
-            max(0, current_state.jug1 + current_state.jug2 - jug2_capacity), 
-            min(jug2_capacity, current_state.jug1 + current_state.jug2)),
-        ('Pour Jug 2 to Jug 1', 
-            min(jug1_capacity, current_state.jug1 + current_state.jug2), 
-            max(0, current_state.jug1 + current_state.jug2 - jug1_capacity))
-    ]
+        visited[current] = True
+        path.append(current)
 
-    for operation in operations:
-        action, new_jug1, new_jug2 = operation
-        new_state = WaterJugState(new_jug1, new_jug2)
+        if current[0] == target or current[1] == target:
+            if current[0] == target:
+                final_state = (target, 0)
+            else:
+                final_state = (target,0)
+            
+            path.append(final_state)
+            
+            for state in path:
+                print(f"({state[0]}, {state[1]})")
+            return
 
-        if (new_state.jug1, new_state.jug2) not in visited:
-            print(f"Trying: {action} => ({new_jug1}, {new_jug2})")
-            if dfs(new_state, visited, jug1_capacity, jug2_capacity, target_volume):
-                return True
+        next_states = [
+            (a, current[1]),  
+            (current[0], b),  
+            (0, current[1]),  
+            (current[0], 0),  
+            (max(current[0] - (b - current[1]), 0), min(current[1] + current[0], b)),  
+            (min(current[0] + current[1], a), max(current[1] - (a - current[0]), 0))   
+        ]
 
-    return False
+        for state in next_states:
+            if state not in visited and 0 <= state[0] <= a and 0 <= state[1] <= b:
+                stack.append(state)
 
-def solve_water_jug_problem(jug1_capacity, jug2_capacity, target_volume):
-    initial_state = WaterJugState(0, 0)
-    visited = []
-    
-    if dfs(initial_state, visited, jug1_capacity, jug2_capacity, target_volume):
-        print("Solution found!")
-    else:
-        print("Solution not possible.")
+    print("No solution")
 
-jug1_capacity = int(input("Enter Jug 1 capacity: "))
-jug2_capacity = int(input("Enter Jug 2 capacity: "))
-target_volume = int(input("Enter Target Volume: "))
-
-print(f"Solving Water Jug Problem with capacities ({jug1_capacity}, {jug2_capacity}) to measure {target_volume} liters.")
-solve_water_jug_problem(jug1_capacity, jug2_capacity, target_volume)
+Jug1=int(input("\nEnter the capacity of jug-1:"))
+Jug2=int(input("\nEnter the capacity of jug-2:"))
+target=int(input("\nEnter the target capicity:"))
+print("Path from initial state to solution state ::")
+DFS(Jug1, Jug2, target)
